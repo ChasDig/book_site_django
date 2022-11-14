@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Book, Category, Author, PublishedHouse, Translation, Genre, Rating
+from .models import *
 
 
 @admin.register(Category)
@@ -44,12 +44,13 @@ class GenreAdmin(admin.ModelAdmin):
     search_fields = ('name', 'descriptions')
 
 
-@admin.register(Rating)
-class RatingAdmin(admin.ModelAdmin):
-    """ Админ-класс для работы с 'Rating' """
-    list_display = ('id', 'ip', 'book', 'stars')
-    list_display_links = ('id', 'book')
-    search_fields = ('book', )
+@admin.register(Reviews)
+class ReviewsAdmin(admin.ModelAdmin):
+    """ Админ-класс для работы с 'Reviews' """
+    list_display = ('name', 'email', 'parent', 'book', 'id')
+    readonly_fields = ('name', 'email')
+    search_fields = ('name', 'book')
+
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
@@ -62,3 +63,4 @@ class BookAdmin(admin.ModelAdmin):
     search_fields = ('name', 'descriptions')
     # Список полей для фильтрации
     list_filter = ('name', 'year_edition', 'date_published', 'category__name', 'author__name', 'genre__name')
+

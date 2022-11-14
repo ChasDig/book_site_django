@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Category(models.Model):
@@ -6,9 +7,13 @@ class Category(models.Model):
 
     name = models.CharField(verbose_name='Категория', max_length=150)
     descriptions = models.TextField(verbose_name='Описание', max_length=500)
+    url = models.SlugField(max_length=150, default='1')
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("category_views", kwargs={'slug': self.url})
 
     class Meta:
         verbose_name = 'Категория'
@@ -23,9 +28,13 @@ class Author(models.Model):
     age = models.PositiveSmallIntegerField(verbose_name='Возраст')
     images = models.ImageField(verbose_name='Постер', upload_to='book_site/')
     biography = models.TextField(verbose_name='Биография', max_length=500)
+    url = models.SlugField(max_length=150, default='2')
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("author_one_views", kwargs={'slug': self.url})
 
     class Meta:
         verbose_name = 'Автор'
@@ -63,9 +72,13 @@ class Genre(models.Model):
     """Модель: Жанр"""
     name = models.CharField(verbose_name='Имя', max_length=150)
     descriptions = models.TextField(verbose_name='Описание')
+    url = models.SlugField(max_length=150, default=1)
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("genre_views", kwargs={'slug': self.url})
 
     class Meta:
         verbose_name = 'Жанр'
@@ -92,36 +105,32 @@ class Book(models.Model):
     def __str__(self):
         return self.name
 
+    def get_reviews(self):
+        return self.reviews_set.filter(parent__isnull=True)
+
+    # Создаем absolute_url:
+    def get_absolute_url(self):
+        return reverse("book_one_views", kwargs={'slug': self.url})
+
     class Meta:
         verbose_name = 'Книга'
         verbose_name_plural = 'Книги'
         ordering = ['-date_published']
 
 
-class Stars(models.Model):
-    """Модель: Звезды рейтинга"""
+class Reviews(models.Model):
+    """ Модель: Отзывы """
 
-    values = models.PositiveSmallIntegerField(verbose_name='Значение', default=0)
+    name = models.CharField(verbose_name='Имя', max_length=100)
+    email = models.EmailField()
+    text = models.TextField(verbose_name='Сообщение', max_length=5000)
 
-    def __str__(self):
-        return self.values
-
-    class Meta:
-        verbose_name = 'Звезда рейинга'
-        verbose_name_plural = 'Звезды рейтинга'
-
-
-class Rating(models.Model):
-    """Модель: Рейтинг"""
-
-    ip = models.CharField(verbose_name='IP-адрес', max_length=15)
-
-    book = models.ForeignKey(Book, verbose_name='Книга', on_delete=models.CASCADE)
-    stars = models.ForeignKey(Stars, verbose_name='Звезда', on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, verbose_name='Произведение', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', verbose_name='Родитель', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return self.ip
+        return self.name
 
     class Meta:
-        verbose_name = 'Рейтинг'
-        verbose_name_plural = 'Рейтинги'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'

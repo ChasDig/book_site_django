@@ -1,0 +1,27 @@
+{% extends 'book/base.html' %}
+{% load static %}
+
+{% block title %}BookSite Info about Author{% endblock title %}
+
+{% block context_data %}
+  <div class="card mb-3">
+    <div class="card-header">
+        <div class="media">
+          <h2>{{ author_one.name }}</h2>
+      </div>
+      <link href="{% static 'bootstrap-5.2.2-dist/css/style.css' %}" rel="stylesheet">
+      <div class="men-thumb-item">
+        <img src="{{ author_one.images.url }}" width="250" height="250" class="img-fluid" alt="">
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+            <br><b>Дата рождения: </b>{{ author_one.date_birthday }}
+            <br><b>Родина: </b>{{ author_one.country }}
+            <br><b>Возраст: </b>{{ author_one.age }}
+            <br><b>Биография: </b>
+          <br>{{ author_one.biography }}
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock context_data %}

@@ -1,56 +1,43 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BookSite Demo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-  </head>
-  <body>
+{% extends 'book/base.html' %}
+{% load static %}
 
-  <nav class="navbar navbar-expand-lg bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">Book Site</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="/">Главная страница</a></li>
-        <li class="nav-item"><a class="nav-link" href="/">Добавить книгу</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+{% block title %}BookSite Demo{% endblock title %}
 
-    <div class="container mt-3">
-    <h2>Список книг:</h2>
-    <div class="row">
-      {% block context %}
-        {% for item_book in books %}
-          <div class="card mb-3">
-            <div class="card-header">
-              {{ item_book.genre.name }}
-            </div>
-            <div class="card-body">
-              <h5 class="card-title">{{ item_book.name }}</h5>
-              <p class="card-text">{{ item_book.descriptions }}</p>
-              <a href="#" class="btn btn-primary">URL</a>
-            </div>
-            <div class="card-footer text-muted">
-              {{ item_book.date_published|date:"Y-m-d" }}
-            </div>
+{% block context_data %}
+
+  {% for item in book_filter %}
+    {{ item.name }}
+  {% endfor %}
+  {% for item_book in book %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <b>Категория:</b>
+        <a class="card-title" href="{{ item_book.category.get_absolute_url }}" style="text-decoration:none"><br><h5><la>{{ item_book.category.name }}</la></h5></a>
+      </div>
+        <div class="card-body">
+          <div class="media">
+            <link href="{% static 'bootstrap-5.2.2-dist/css/style.css' %}" rel="stylesheet">
+              <a class="card-title" href="{{ item_book.get_absolute_url }}" style="text-decoration:none"><h5><la>{{ item_book.name }}</la></h5></a>
+                <div class="men-thumb-item">
+                  <a href="{{ item_book.get_absolute_url }}" class="list-group-item list-group-item-action">
+                    <img src="{{ item_book.images.url }}" width="250" height="250" class="img-fluid" alt="">
+                  </a>
+                </div>
+                <b>Год издания: </b>{{ item_book.year_edition }}
+                <br><b>Дата публикации: </b>{{ item_book.date_published }}
+                {% for author in item_book.author.all %}
+                  <br><b>Автор: </b>
+            <a href="{{ author.get_absolute_url }}" style="text-decoration:none"><la>{{ author.name }}</la></a>
+              {% endfor %}
+            <p class="card-text"><b>Описание:</b><br>{{ item_book.descriptions|truncatewords:50 }}</p>
+            <a href="{{ item_book.get_absolute_url }}" class="btn btn-primary">Подробнее</a>
           </div>
-        {% endfor %}
-      {% endblock %}
+        </div>
+        <div class="card-footer text-muted">
+          Дата публикации:
+          {{ item_book.date_published|date:"Y-m-d"}}
+        </div>
     </div>
-  </div>
+  {% endfor %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
-  </body>
-</html>
-
-
-
-
-
+{% endblock context_data %}
