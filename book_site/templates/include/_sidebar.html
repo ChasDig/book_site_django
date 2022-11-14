@@ -1,0 +1,45 @@
+
+<!--search book-->
+<!--<div class="search-bar w3layouts-newsletter">-->
+<!--    <h3 class="sear-head editContent">Поиск фильма</h3>-->
+<!--    <form action="#" method="get" class="d-flex editContent">-->
+<!--        <input type="search" placeholder="Введите название..." name="q" class="form-control" required="">-->
+<!--        <button type="submit" class="btn1 btn">-->
+<!--            <span class="fa fa-search" aria-hidden="true"></span>-->
+<!--        </button>-->
+<!--    </form>-->
+<!--</div>-->
+
+<div class="col md-4">
+  <div class="list-group list-group-flush">
+
+        <form action="{% url 'filter_views' %}" method="get">
+            <div class="left-side">
+
+                <!--book categories-->
+                <h3 class="sear-head editContent">Категории</h3>
+                   <ul class="list-group list-group-flush">
+                        {% for categories in view.get_category%}
+                             <li class="list-group-item">
+                                <input type="checkbox" class="checked" name="categories" value="{{ categories.pk }}">
+                                <span class="span editContent" >{{ categories.name }}</span>
+                            </li>
+                        {% endfor %}
+                  </ul>
+
+                <!--book genre-->
+                <h3 class="sear-head editContent">Жанры</h3>
+                    <ul class="list-group list-group-flush">
+                        {% for genre in view.get_genre %}
+                             <li class="list-group-item">
+                                <input type="checkbox" class="checked" name="genre" value="{{ genre.pk }}">
+                                <span class="span editContent">{{ genre.name }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+            </div>
+
+            <button type="submit">Найти</button>
+        </form>
+  </div>
+</div>
