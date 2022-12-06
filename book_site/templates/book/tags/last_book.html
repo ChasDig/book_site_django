@@ -1,0 +1,14 @@
+{% load static %}
+<div class="left-side">
+    <h4 class="sear-head editContent">Последние 2 книги:</h4>
+        <ul class="list-group list-group-flush">
+            {% for book_data in last_book %}
+                <a href="{{ book_data.get_absolute_url }}">
+                    <img src="{{ book_data.images.url}}" class="book-image book-zoom" alt="" >
+                </a>
+                <h6 class="editContent">
+                    <a href="{{ book_data.get_absolute_url }}" class="editContent"><la>{{ book_data.name }}</la></a>
+                </h6>
+            {% endfor %}
+        </ul>
+</div>

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %} Title site {% endblock title %}
+
+{% block content %}
+
+    <section class="ab-info-main py-md-5 py-4 editContent"
+             style="padding-left: 3rem; padding-right: 3rem;">
+
+        <div class="row">
+            {% block sidebar %}
+                <div class="side-bar col-lg-3">
+                    {% include 'include/_sidebar.html' %}
+                </div>
+            {% endblock sidebar %}
+
+            {% block book_list %}
+                Book list data
+            {% endblock book_list %}
+        </div>
+
+    </section>
+
+{% endblock content %}

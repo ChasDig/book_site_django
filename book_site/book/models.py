@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 
+from datetime import datetime
+
 
 class Category(models.Model):
     """Модель: Категории"""
@@ -70,7 +72,7 @@ class Translation(models.Model):
 
 class Genre(models.Model):
     """Модель: Жанр"""
-    name = models.CharField(verbose_name='Имя', max_length=150)
+    name = models.CharField(verbose_name='Жанр', max_length=150)
     descriptions = models.TextField(verbose_name='Описание')
     url = models.SlugField(max_length=150, default=1)
 
@@ -89,9 +91,9 @@ class Book(models.Model):
     """Модель: Книг"""
 
     name = models.CharField(verbose_name='Название', max_length=150)
-    images = models.ImageField(verbose_name='Постер', upload_to='book_site/')
-    descriptions = models.TextField(verbose_name='Описание')
-    year_edition = models.PositiveSmallIntegerField(verbose_name='Дата написания:', default=2000)
+    images = models.ImageField(verbose_name='Постер', upload_to='book_site/', )
+    descriptions = models.TextField(verbose_name='Описание', blank=True)
+    year_edition = models.PositiveSmallIntegerField(verbose_name='Дата написания:', blank=True)
     date_published = models.DateField(verbose_name='Дата публикации', auto_now_add=True)
     url = models.SlugField(max_length=150)
     draft = models.BooleanField(verbose_name='Черновик', default=False)
@@ -134,3 +136,22 @@ class Reviews(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+
+
+class SuggestBook(models.Model):
+
+    name = models.CharField(verbose_name='Название книги', max_length=100)
+    author = models.CharField(verbose_name='Автор книги', max_length=100, null=True)
+    text = models.TextField(verbose_name='Описание книги', max_length=5000)
+    url_book = models.URLField(verbose_name='Ссылка на книгу', default='', blank=True)
+    user_book = models.FileField(verbose_name='Книга пользователя', blank=True,
+                                 upload_to=f'user_book/{datetime.today().month}_{datetime.today().day}')
+    draft = models.CharField(verbose_name='Стадия рассмотрения', max_length=5, default='MayBe',
+                             choices=(('MayBe', 'Рассматривается'), ('Yes', 'Рассмотрена'), ('No', 'Отклонена')))
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Предложенная книга'
+        verbose_name_plural = 'Предложенные книги'

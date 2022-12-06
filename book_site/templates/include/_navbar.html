@@ -1,39 +1,72 @@
-<!--navbar-->
-<nav class="navbar navbar-expand-lg bg-light">
+{% load static %}
+<!-- Navbar -->
+<!-- Main menu -->
+<nav class="navbar navbar-expand-lg"  style="background-color: #d8eef0;">
+  <div class="container-fluid" >
 
-  <div class="container-fluid">
+    <div class="row align-items-start">
+      <div class="col-2">
+        <a class="navbar-brand fst-italic" href="{% url 'book_views' %}">MySiteBook</a>
+      </div>
+      <div class="col-3">
+        <a class="navbar-brand" href="{% url 'book_views' %}">Главная страница</a>
+      </div>
 
-    <!--main menu-->
-    <a class="navbar-brand" href="{% url 'book_views' %}">MySiteBook</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <!-- Search button -->
+      <div class="col">
+        <form class="d-flex" role="search" action="{% url 'search_book' %}" method="get">
+          <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Search" name="q" style="background-color: #b8e0e3;">
+          <button class="btn btn-outline-dark" type="submit" style="background-color: #b8e0e3;">Search</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Offcanvas -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'book_views' %}">Главная</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="{% url 'book_views' %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Авторизация
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'book_views' %}">Регистрация</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{% url 'book_views' %}">Вход</a></li>
-          </ul>
-        </li>
-      </ul>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel" style="background-color: #d8eef0";>
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
 
-      <!--search menu-->
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+
+          <li class="nav-item dropdown">
+
+            <!-- Authorization: registration, login and logout -->
+            <a class="nav-link dropdown-toggle" href="{% url 'book_views' %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if request.user.is_authenticated %}
+                {{ user.username }}
+              {% else %}
+                <h7>Вход на сайт</h7>
+              {% endif %}
+            </a>
+              {% if request.user.is_authenticated %}
+                <ul class="dropdown-menu" style="background-color: #b8e0e3;">
+                    <!-- Add new book -->
+                    <li>
+                        {% if request.user.is_authenticated %}
+                          <a class="dropdown-item" href="{% url 'suggest_book' %}" aria-current="page"">Предложить книгу</a>
+                        {% endif %}
+                    </li>
+                    <li><a class="dropdown-item" href="{% url 'logout' %}">Выход</a></li>
+                </ul>
+              {% else %}
+                <ul class="dropdown-menu" style="background-color: #b8e0e3;">
+                  <li><a class="dropdown-item" href="{% url 'login' %}">Вход</a></li>
+                  <li><a class="dropdown-item" href="{% url 'register' %}">Регистрация</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'social:begin' 'vk-oauth2' %}">Вход через Vk</a></li>
+                </ul>
+              {% endif %}
+          </li>
+        </ul>
+      </div>
+
     </div>
-
   </div>
-
 </nav>

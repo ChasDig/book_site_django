@@ -1,0 +1,16 @@
+{% extends 'book/base.html' %}
+{% load static %}
+
+{% block title %}BookSite Info about Author{% endblock title %}
+
+{% block context_data %}
+
+    <h1>Регистрация</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary btn-block">Регистрация</button>
+    </form>
+
+{% endblock context_data %}

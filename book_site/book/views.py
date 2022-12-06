@@ -1,26 +1,49 @@
 from django.db.models import Q
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.views.generic import View, ListView, DetailView
-from django.shortcuts import redirect
-from django.core.paginator import Paginator
+from django.views.generic import *
+from django.shortcuts import redirect, render
+from django.contrib import messages
+from django.contrib.auth import login, logout
 
-from .models import *
+
 from .forms import *
 
 
-class CategoryGenre:
-    """ Класс для получение моделей Категорий и Жанров """
+def register(request):
+    if request.method == "POST":
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            messages.success(request, 'Вы успешно зарегестрировались!')
+            return redirect('book_views')
+        else:
+            messages.error(request, 'Ошибка при регистрации')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'book/register.html', {'form': form})
 
-    def get_category(self):
-        return Category.objects.all()
 
-    def get_genre(self):
-        return Genre.objects.all()
+def user_login(request):
+    if request.method == "POST":
+        form = UserLoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            return redirect('book_views')
+    else:
+        form = UserLoginForm()
+    return render(request, 'book/login.html', {'form': form})
 
 
-class BookViews(CategoryGenre, ListView):
-    """ Класс-контроллер для работы с главной страниц 'book_all_list' """
+def user_logout(request):
+    logout(request)
+    return redirect('login')
+
+
+class BookViews(ListView):
+    """ Класс-контроллер для работы с главной страниц 'book_list' """
 
     model = Book
     template_name = 'book/book_list.html'
@@ -36,7 +59,7 @@ class BookViews(CategoryGenre, ListView):
         return context
 
 
-class BookOneDataViews(CategoryGenre, DetailView):
+class BookOneDataViews(DetailView):
     """ Контроллер-класс для работы со страницей книги """
 
     model = Book
@@ -46,8 +69,15 @@ class BookOneDataViews(CategoryGenre, DetailView):
 
     slug_field = 'url'
 
+    def get_context_data(self, **kwargs):
 
-class CategoryViews(CategoryGenre, DetailView):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ReviewsForm()
+
+        return context
+
+
+class CategoryViews(DetailView):
 
     model = Category
     template_name = 'book/category_detail.html'
@@ -64,8 +94,8 @@ class CategoryViews(CategoryGenre, DetailView):
         return context
 
 
-class FilterBookViews(CategoryGenre, ListView):
-    """ Контроллер-класс для работы с категориями"""
+class FilterBookViews(ListView):
+    """ Контроллер-класс для фильтрации книг"""
 
     context_object_name = 'book'
 
@@ -73,9 +103,15 @@ class FilterBookViews(CategoryGenre, ListView):
 
     def get_queryset(self):
         queryset = Book.objects.filter(Q(category__in=self.request.GET.getlist("categories")) |
-                                       Q(genre__in=self.request.GET.getlist("genre")))
-        print(queryset)
+                                       Q(genre__in=self.request.GET.getlist("genre"))).distinct()
         return queryset
+
+    def get_context_data(self, *args, **kwargs):
+
+        context = super().get_context_data(*args, **kwargs)
+        context['categories'] = ''.join([f'categories={buf}&' for buf in self.request.GET.getlist("categories")])
+        context['genre'] = ''.join([f'genre={buf}&' for buf in self.request.GET.getlist("genre")])
+        return context
 
 
 class AuthorDataViews(DetailView):
@@ -86,12 +122,20 @@ class AuthorDataViews(DetailView):
     context_object_name = 'author_one'
     slug_field = 'url'
 
-    def get_context_data(self, **kwargs):
 
-        context = super().get_context_data(**kwargs)
-        context['book_categories'] = Category.objects.all()
-        context['genre'] = Genre.objects.all()
-        context['books'] = Book.objects.all()
+class SearchBook(ListView):
+    """ Контроллер-функция для поиска книг по названию """
+
+    paginate_by = 2
+    context_object_name = 'book'
+
+    def get_queryset(self):
+        return Book.objects.filter(name__icontains=self.request.GET.get('q'))
+
+    def get_context_data(self, *args, **kwargs):
+
+        context = super().get_context_data(*args, **kwargs)
+        context['q'] = f"q={self.request.GET.get('q')}&"
         print(context)
 
         return context
@@ -115,17 +159,25 @@ class ReviewsViews(View):
         return redirect(book.get_absolute_url())
 
 
-class SearchBook(ListView):
-    """ Контроллер-функция для поиска книг по названию """
+class SuggestBookViews(View):
 
-    # Поиск по названию без учета регистра:
-    def get_queryset(self):
-        return Book.objects.filter(name__icontains=self.request.GET.get('q'))
+    template_name = 'book/suggest_book.html'
+    context_object_name = 'suggest_book'
 
-    def get_context_data(self, *args, **kwargs):
+    def get(self, request):
 
-        context = super().get_context_data(*args, **kwargs)
-        context['q'] = self.request.GET.get('q')
-        print(context)
+        form = SuggestBookForm()
 
-        return context
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+
+        form = SuggestBookForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Спасибо за предложенную книгу. Мы ее обязательно рассмотрим!')
+            return redirect('book_views')
+        else:
+            messages.success(request, 'Вы ввели что-то не так. Повторите пожалуйста попытку!')
+            return render(request, 'book/suggest_book.html', {'form': form})

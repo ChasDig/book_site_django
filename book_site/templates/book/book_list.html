@@ -1,43 +1,59 @@
-{% extends 'book/base.html' %}
+{% extends 'book/book_base.html' %}
 {% load static %}
 
 {% block title %}BookSite Demo{% endblock title %}
 
-{% block context_data %}
+{% block book_list %}
 
-  {% for item in book_filter %}
-    {{ item.name }}
-  {% endfor %}
   {% for item_book in book %}
-    <div class="card mb-3">
-      <div class="card-header">
-        <b>Категория:</b>
-        <a class="card-title" href="{{ item_book.category.get_absolute_url }}" style="text-decoration:none"><br><h5><la>{{ item_book.category.name }}</la></h5></a>
-      </div>
-        <div class="card-body">
-          <div class="media">
-            <link href="{% static 'bootstrap-5.2.2-dist/css/style.css' %}" rel="stylesheet">
-              <a class="card-title" href="{{ item_book.get_absolute_url }}" style="text-decoration:none"><h5><la>{{ item_book.name }}</la></h5></a>
-                <div class="men-thumb-item">
-                  <a href="{{ item_book.get_absolute_url }}" class="list-group-item list-group-item-action">
-                    <img src="{{ item_book.images.url }}" width="250" height="250" class="img-fluid" alt="">
-                  </a>
-                </div>
-                <b>Год издания: </b>{{ item_book.year_edition }}
-                <br><b>Дата публикации: </b>{{ item_book.date_published }}
-                {% for author in item_book.author.all %}
-                  <br><b>Автор: </b>
-            <a href="{{ author.get_absolute_url }}" style="text-decoration:none"><la>{{ author.name }}</la></a>
-              {% endfor %}
-            <p class="card-text"><b>Описание:</b><br>{{ item_book.descriptions|truncatewords:50 }}</p>
-            <a href="{{ item_book.get_absolute_url }}" class="btn btn-primary">Подробнее</a>
+    <div class="col-lg-4 col-sm-6">
+      <div class="book-card">
+
+        <div class="book_data">
+          <a class="d2 change-text" href="{{ item_book.get_absolute_url }}">
+            <h3>{{ item_book.name }}</h3>
+          </a>
+        </div>
+
+        <div class="book-image book-zoom">
+          <a href="{{ item_book.get_absolute_url }}" class="list-group-item list-group-item-action">
+            <img src="{{ item_book.images.url }}"  width="250" height="300" class="img-fluid" alt="">
+          </a>
+        </div>
+
+        <div class="book_data">
+          <div class="book_categories">
+            <b>Категория: </b>
+              <a class="card-title change-text" href="{{ item_book.category.get_absolute_url }}" style="text-decoration:none">
+                {{ item_book.category.name }}
+              </a>
+          </div>
+
+          <div class="book_data">
+            <b>Год издания:</b> {{ item_book.year_edition }}
+            <br><b>Дата публикации: </b>{{ item_book.date_published }}<br>
+            {% for author in item_book.author.all %}
+              <b>Автор: </b>
+              <a class="change-text" href="{{ author.get_absolute_url }}" style="text-decoration:none">{{ author.name }}</a>
+            {% endfor %}
+          </div>
+
+          <div class="book_description">
+            <p class="card-text"><b>Описание:</b>{{ item_book.descriptions|truncatewords:30|safe }}</p>
+            <a href="{{ item_book.get_absolute_url }}" class="book-buttons">Подробнее</a>
           </div>
         </div>
-        <div class="card-footer text-muted">
-          Дата публикации:
-          {{ item_book.date_published|date:"Y-m-d"}}
+
+        <div class="book_footer_details">
+          <b>Дата публикации: {{ item_book.date_published|date:"Y-m-d"}}</b>
         </div>
+      </div>
     </div>
   {% endfor %}
 
-{% endblock context_data %}
+    <!-- Paginator -->
+    {% if page_obj.has_other_pages %}
+        {% include 'include/_pagination.html' %}
+    {% endif %}
+
+{% endblock book_list %}
